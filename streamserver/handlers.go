@@ -25,6 +25,7 @@ func uploadHandler(writer http.ResponseWriter, request *http.Request, params htt
 }
 
 func streamHandler(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	log.Println("streamHandler invoke...")
 	request.Body = http.MaxBytesReader(writer, request.Body, MAX_UPLOAD_SIZE)
 	if err := request.ParseMultipartForm(MAX_UPLOAD_SIZE); err != nil{
 		sendErrorResponse(writer, http.StatusBadRequest,"file is too big")
