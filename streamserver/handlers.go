@@ -11,20 +11,6 @@ import (
 )
 
 func uploadHandler(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	vid := params.ByName("vid-id")
-	vl := VIDEO_DER + vid
-	file, err := os.Open(vl)
-	defer file.Close()
-	if err != nil {
-		sendErrorResponse(writer, http.StatusInternalServerError, "Internal Error")
-		return
-	}
-	writer.Header().Set("Content-Type", "video/mp4")
-	http.ServeContent(writer,request,"",time.Now(), file)
-
-}
-
-func streamHandler(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	log.Println("streamHandler invoke...")
 	request.Body = http.MaxBytesReader(writer, request.Body, MAX_UPLOAD_SIZE)
 	if err := request.ParseMultipartForm(MAX_UPLOAD_SIZE); err != nil{
@@ -50,4 +36,31 @@ func streamHandler(writer http.ResponseWriter, request *http.Request, params htt
 	}
 	writer.WriteHeader(http.StatusCreated)
 	io.WriteString(writer,"upload file success")
+}
+
+/*
+vid := params.ByName("vid-id")
+	vl := VIDEO_DER + vid
+	file, err := os.Open(vl)
+	defer file.Close()
+	if err != nil {
+		sendErrorResponse(writer, http.StatusInternalServerError, "Internal Error")
+		return
+	}
+	writer.Header().Set("Content-Type", "video/mp4")
+	http.ServeContent(writer,request,"",time.Now(), file)
+ */
+
+func streamHandler(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	vid := params.ByName("vid-id")
+	vl := VIDEO_DER + vid
+	file, err := os.Open(vl)
+	defer file.Close()
+	if err != nil {
+		log.Println("Error : " , err)
+		sendErrorResponse(writer, http.StatusInternalServerError, "Internal Error")
+		return
+	}
+	writer.Header().Set("Content-Type", "video/mp4")
+	http.ServeContent(writer,request,"",time.Now(), file)
 }

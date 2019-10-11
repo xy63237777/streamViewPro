@@ -27,7 +27,7 @@ func nowMilli() int64 {
 	return time.Now().UnixNano()/1000000
 }
 
-func loadSessionsFromDB()  {
+func LoadSessionsFromDB()  {
 	r, err := dbops.RetrieveAllSessions()
 	if err != nil {
 		defs.CheckErrorOfMsg(err, "loadSessionsFromDB invoke...")

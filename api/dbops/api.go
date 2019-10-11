@@ -40,6 +40,52 @@ func GetUserCredential(loginName string) (string, error)  {
 	return pwd, nil
 }
 
+func ListVideoInfo(name string,from, to int) ([]*defs.VideoInfo, error) {
+	stmt, err := dbConn.Prepare(`select video_info.id, video_info.author_id, video_info.name, video_info.display_ctime
+	    from video_info inner join users on video_info.author_id = users.id
+				where video_info.id = ? and 
+				      video_info.display_ctime > from_unixtime(?) and video_info.display_ctime <= from_unixtime(?)
+				`)
+	defer stmt.Close()
+	if err != nil {
+		return nil, err
+	}
+	var res []*defs.VideoInfo
+	rows, err := stmt.Query(name, from, to)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var id, vName, displayTime string
+		var aid int
+		if err := rows.Scan(&id,&aid,&vName,&displayTime); err != nil {
+			return res,nil
+		}
+		temp := &defs.VideoInfo{Id: id, AuthorId: aid, Name: vName, DisplayCtime: displayTime,}
+		res = append(res, temp)
+	}
+	return res,nil
+}
+
+func GetUser(loginName string) (*defs.User, error) {
+	stmt, e := dbConn.Prepare("select id, pwd from users where login_name = ?")
+	defer stmt.Close()
+	if e != nil {
+		defs.CheckErrorOfMsg(e,"GetUserCredential invoke... ",loginName)
+		return nil, e
+	}
+	var id int
+	var pwd string
+	err := stmt.QueryRow(loginName).Scan(&id, &pwd)
+	if err != nil && err != sql.ErrNoRows {
+		return nil,err
+	}
+	if err == sql.ErrNoRows {
+		return nil, err
+	}
+	return &defs.User{Id:id,LoginName:loginName,Pwd:pwd},nil
+}
+
 func DeleteUser(loginName string, pwd string) error {
 	stmt, e := dbConn.Prepare("delete from users where login_name = ? and pwd = ?")
 	defer stmt.Close()
