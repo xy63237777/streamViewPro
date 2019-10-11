@@ -38,20 +38,10 @@ func uploadHandler(writer http.ResponseWriter, request *http.Request, params htt
 	io.WriteString(writer,"upload file success")
 }
 
-/*
-vid := params.ByName("vid-id")
-	vl := VIDEO_DER + vid
-	file, err := os.Open(vl)
-	defer file.Close()
-	if err != nil {
-		sendErrorResponse(writer, http.StatusInternalServerError, "Internal Error")
-		return
-	}
-	writer.Header().Set("Content-Type", "video/mp4")
-	http.ServeContent(writer,request,"",time.Now(), file)
- */
+
 
 func streamHandler(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+
 	vid := params.ByName("vid-id")
 	vl := VIDEO_DER + vid
 	file, err := os.Open(vl)
